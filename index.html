@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Calculadora de % de Gordura em 5 Minutos | Thiago Personal Trainer</title>
+<meta name="description" content="Descubra seu percentual de gordura corporal real em 5 minutos, sem academia e sem equipamento. Método validado cientificamente.">
+
+<!-- Open Graph / preview no Linktree, WhatsApp, Instagram -->
+<meta property="og:title" content="Calculadora de % de Gordura em 5 Minutos">
+<meta property="og:description" content="Descubra seu ponto de partida real. Sem academia, sem aparelho — só uma fita métrica.">
+<meta property="og:type" content="website">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%230e0c0a' stroke='%23c9a35d' stroke-width='6'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0e0c0a;
+    --bg-panel: #17140f;
+    --gold: #c9a35d;
+    --gold-soft: #e4c98a;
+    --cream: #f3ecdf;
+    --muted: #a89a82;
+    --line: rgba(201,163,93,0.22);
+    --error: #c96d5d;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(1200px 600px at 50% -10%, #221c14 0%, var(--bg) 55%);
+    color: var(--cream);
+    font-family:'Inter', sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:clamp(20px, 6vw, 48px) 16px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .card{
+    width:100%;
+    max-width:560px;
+    background: var(--bg-panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:clamp(28px, 6vw, 48px) clamp(20px, 5vw, 40px);
+    position:relative;
+    overflow:hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0;
+    height:2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color: var(--gold);
+    margin-bottom:14px;
+    font-weight:600;
+  }
+  h1{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:500;
+    font-size:clamp(26px, 5.5vw, 34px);
+    line-height:1.15;
+    margin:0 0 12px 0;
+    color: var(--cream);
+  }
+  h1 em{
+    font-style:italic;
+    color: var(--gold-soft);
+  }
+  p.lead{
+    color: var(--muted);
+    font-size:15px;
+    line-height:1.6;
+    margin:0 0 32px 0;
+  }
+  .step{ display:none; }
+  .step.active{ display:block; animation: fade .4s ease; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  label{
+    display:block;
+    font-size:12px;
+    letter-spacing:0.04em;
+    color: var(--muted);
+    margin-bottom:8px;
+    text-transform:uppercase;
+  }
+  input[type=text], input[type=tel], input[type=number]{
+    width:100%;
+    background: transparent;
+    border:none;
+    border-bottom:1px solid var(--line);
+    color: var(--cream);
+    font-family:'Inter', sans-serif;
+    font-size:16px;
+    padding:10px 2px;
+    margin-bottom:26px;
+    outline:none;
+    transition: border-color .25s ease;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+  /* remove setas do input number no Chrome/Safari */
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+  }
+  input[type=number]{ -moz-appearance:textfield; }
+
+  input::placeholder{ color:#5c5344; }
+  input:focus{ border-bottom-color: var(--gold); }
+  input.invalid{ border-bottom-color: var(--error); }
+
+  .field-row{ display:flex; gap:16px; flex-wrap:wrap; }
+  .field-row > div{ flex:1; min-width:120px; }
+
+  .objective-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:30px;
+  }
+  .objective-grid input{ display:none; }
+  .objective-grid label.opt{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    border:1px solid var(--line);
+    padding:14px 8px;
+    font-size:13px;
+    letter-spacing:0.03em;
+    text-transform:none;
+    color: var(--muted);
+    cursor:pointer;
+    transition:.2s ease;
+    border-radius:2px;
+  }
+  .objective-grid label.opt:hover{ border-color: rgba(201,163,93,0.45); }
+  .objective-grid input:checked + label.opt{
+    border-color: var(--gold);
+    color: var(--gold-soft);
+    background: rgba(201,163,93,0.08);
+  }
+
+  button{
+    width:100%;
+    background: var(--gold);
+    color:#17140f;
+    border:none;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:0.03em;
+    padding:16px;
+    cursor:pointer;
+    transition: background .2s ease, transform .15s ease, opacity .2s ease;
+    border-radius:2px;
+  }
+  button:hover:not(:disabled){ background: var(--gold-soft); }
+  button:active:not(:disabled){ transform: scale(0.99); }
+  button:disabled{ opacity:0.6; cursor:not-allowed; }
+  button.ghost{
+    background:transparent;
+    border:1px solid var(--line);
+    color: var(--muted);
+    margin-top:12px;
+  }
+  button.ghost:hover{ border-color: var(--gold); color: var(--gold-soft); background:transparent; }
+
+  .micro{
+    font-size:12px;
+    color:#6b6152;
+    text-align:center;
+    margin-top:16px;
+  }
+  .error-msg{
+    color: var(--error);
+    font-size:13px;
+    margin: -14px 0 20px 0;
+    display:none;
+  }
+
+  /* Result step */
+  .gauge-wrap{
+    display:flex;
+    justify-content:center;
+    margin: 8px 0 26px 0;
+  }
+  svg#gauge{ width:min(200px, 50vw); height:auto; }
+  .gauge-num{
+    font-family:'Cormorant Garamond', serif;
+    font-size:52px;
+    fill: var(--cream);
+  }
+  .gauge-label{
+    font-size:11px;
+    fill: var(--gold);
+    letter-spacing:0.15em;
+  }
+  .classification{
+    text-align:center;
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:22px;
+    color: var(--gold-soft);
+    margin-bottom:6px;
+  }
+  .subtext{
+    text-align:center;
+    color: var(--muted);
+    font-size:14px;
+    line-height:1.6;
+    margin-bottom:30px;
+  }
+  .divider{
+    border:none;
+    border-top:1px solid var(--line);
+    margin: 30px 0;
+  }
+  .next-box{
+    border:1px solid var(--line);
+    padding:22px;
+    text-align:center;
+    border-radius:2px;
+  }
+  .next-box .tag{
+    font-size:11px;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    color: var(--gold);
+    margin-bottom:10px;
+  }
+  .next-box h3{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:500;
+    font-size:24px;
+    margin:0 0 10px 0;
+  }
+  .next-box p{
+    color: var(--muted);
+    font-size:14px;
+    margin:0 0 20px 0;
+  }
+
+  @media (max-width: 400px){
+    .objective-grid{ grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- STEP 1: Lead capture -->
+  <div class="step active" id="step1">
+    <div class="eyebrow">Avaliação gratuita · 5 minutos</div>
+    <h1>Descubra seu <em>ponto de partida</em> real</h1>
+    <p class="lead">Antes de qualquer treino ou dieta, você precisa saber um número: seu percentual de gordura corporal. Sem academia, sem aparelho — só uma fita métrica.</p>
+
+    <label for="nome">Seu nome</label>
+    <input type="text" id="nome" placeholder="Como você se chama?" autocomplete="name" maxlength="60">
+
+    <label for="whats">WhatsApp</label>
+    <input type="tel" id="whats" placeholder="(00) 00000-0000" inputmode="numeric" autocomplete="tel" maxlength="15">
+
+    <label>Seu objetivo principal agora</label>
+    <div class="objective-grid" role="radiogroup" aria-label="Objetivo principal">
+      <input type="radio" name="obj" id="obj1" value="Glúteos"><label class="opt" for="obj1">Glúteos</label>
+      <input type="radio" name="obj" id="obj2" value="Cintura e abdômen"><label class="opt" for="obj2">Cintura / Abdômen</label>
+      <input type="radio" name="obj" id="obj3" value="Emagrecimento geral"><label class="opt" for="obj3">Emagrecer no geral</label>
+      <input type="radio" name="obj" id="obj4" value="Tônus e definição"><label class="opt" for="obj4">Tônus / Definição</label>
+    </div>
+
+    <div class="error-msg" id="err1" role="alert">Preencha nome, WhatsApp e escolha um objetivo pra continuar.</div>
+    <button onclick="goToStep2()" id="btnStep1">Continuar →</button>
+    <div class="micro">Seus dados são usados só para te enviar o resultado e conteúdos relacionados.</div>
+  </div>
+
+  <!-- STEP 2: Measurements -->
+  <div class="step" id="step2">
+    <div class="eyebrow">Passo 2 de 2</div>
+    <h1>Suas <em>medidas</em></h1>
+    <p class="lead">Meça pela manhã, em jejum, com a fita reta e sem apertar. Todas as medidas em centímetros.</p>
+
+    <div class="field-row">
+      <div>
+        <label for="altura">Altura (cm)</label>
+        <input type="number" id="altura" placeholder="Ex: 165" inputmode="decimal" min="120" max="220">
+      </div>
+      <div>
+        <label for="pescoco">Pescoço (cm)</label>
+        <input type="number" id="pescoco" placeholder="Ex: 32" inputmode="decimal" min="20" max="60">
+      </div>
+    </div>
+    <div class="field-row">
+      <div>
+        <label for="cintura">Cintura (cm)</label>
+        <input type="number" id="cintura" placeholder="Na altura do umbigo" inputmode="decimal" min="40" max="200">
+      </div>
+      <div>
+        <label for="quadril">Quadril (cm)</label>
+        <input type="number" id="quadril" placeholder="Parte mais larga" inputmode="decimal" min="50" max="200">
+      </div>
+    </div>
+
+    <div class="error-msg" id="err2" role="alert">Preencha todas as medidas com valores válidos.</div>
+    <button onclick="calcular()" id="btnCalcular">Calcular meu % agora</button>
+    <button class="ghost" onclick="goToStep1()">← Voltar</button>
+  </div>
+
+  <!-- STEP 3: Result -->
+  <div class="step" id="step3">
+    <div class="eyebrow">Seu resultado</div>
+    <h1 id="resultTitle">Olá, <em>—</em></h1>
+
+    <div class="gauge-wrap">
+      <svg id="gauge" viewBox="0 0 200 200" role="img" aria-labelledby="gaugeDesc">
+        <desc id="gaugeDesc">Percentual de gordura corporal calculado</desc>
+        <circle cx="100" cy="100" r="86" fill="none" stroke="#251f16" stroke-width="14"/>
+        <circle id="gaugeArc" cx="100" cy="100" r="86" fill="none" stroke="#c9a35d" stroke-width="14"
+                stroke-linecap="round" stroke-dasharray="540" stroke-dashoffset="540"
+                transform="rotate(-90 100 100)"/>
+        <text x="100" y="98" text-anchor="middle" class="gauge-num" id="gaugeNum">--</text>
+        <text x="100" y="122" text-anchor="middle" class="gauge-label">% GORDURA</text>
+      </svg>
+    </div>
+
+    <div class="classification" id="classText">—</div>
+    <p class="subtext" id="subText">Este é o seu ponto de partida. Não é um julgamento — é o número que você vai comparar daqui a 30 dias pra ver sua evolução real, além da balança.</p>
+
+    <hr class="divider">
+
+    <div class="next-box">
+      <div class="tag">Próximo passo</div>
+      <h3 id="nextTitle">Foco em Glúteos</h3>
+      <p>Agora que você sabe seu ponto de partida, o próximo passo é ter direção certa — não achismo.</p>
+      <!-- TROQUE o href abaixo pelo link real de venda/WhatsApp quando o manual estiver pronto -->
+      <button onclick="window.location.href='https://wa.me/SEUNUMERO'">Quero meu plano de ação →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goToStep1(){
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step1').classList.add('active');
+}
+
+function goToStep2(){
+  const nome = document.getElementById('nome').value.trim();
+  const whats = document.getElementById('whats').value.trim();
+  const obj = document.querySelector('input[name=obj]:checked');
+  const err = document.getElementById('err1');
+  const whatsDigits = whats.replace(/\D/g, '');
+
+  if(!nome || whatsDigits.length < 10 || !obj){
+    err.textContent = !nome
+      ? 'Preencha seu nome pra continuar.'
+      : (whatsDigits.length < 10
+          ? 'Informe um WhatsApp válido, com DDD.'
+          : 'Escolha um objetivo pra continuar.');
+    err.style.display = 'block';
+    return;
+  }
+  err.style.display = 'none';
+
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step2').classList.add('active');
+}
+
+// Envia o lead pro backend (Supabase + planilha Google Sheets).
+// Não bloqueia a experiência da usuária: roda em segundo plano.
+async function enviarLeadParaBackend(payload){
+  try{
+    await fetch('/api/lead-calculadora', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  }catch(e){
+    console.error('Falha ao enviar lead pro backend:', e);
+  }
+}
+
+function calcular(){
+  const altura = parseFloat(document.getElementById('altura').value);
+  const pescoco = parseFloat(document.getElementById('pescoco').value);
+  const cintura = parseFloat(document.getElementById('cintura').value);
+  const quadril = parseFloat(document.getElementById('quadril').value);
+  const err = document.getElementById('err2');
+  const btn = document.getElementById('btnCalcular');
+
+  const valoresValidos = altura > 0 && pescoco > 0 && cintura > 0 && quadril > 0 && (cintura + quadril - pescoco) > 0;
+
+  if(!valoresValidos){
+    err.style.display = 'block';
+    return;
+  }
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Calculando...';
+
+  // Fórmula Marinha dos EUA (Hodgdon & Beckett, 1984) — mulheres
+  const log10 = Math.log10;
+  const denom = 1.29579 - 0.35004 * log10(cintura + quadril - pescoco) + 0.22100 * log10(altura);
+  let pctNum = (495 / denom) - 450;
+  pctNum = Math.max(8, Math.min(50, pctNum)); // limites de sanidade de exibição
+
+  const nome = document.getElementById('nome').value.trim();
+  const obj = document.querySelector('input[name=obj]:checked').value;
+
+  let classificacao;
+  if(pctNum < 21){ classificacao = "Atlética"; }
+  else if(pctNum < 25){ classificacao = "Fitness"; }
+  else if(pctNum < 32){ classificacao = "Aceitável"; }
+  else { classificacao = "Acima do ideal"; }
+
+  document.getElementById('resultTitle').innerHTML = `Olá, <em>${nome.split(' ')[0]}</em>`;
+  document.getElementById('classText').textContent = classificacao;
+  document.getElementById('nextTitle').textContent = "Foco em " + obj;
+
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step3').classList.add('active');
+  btn.disabled = false;
+  btn.textContent = 'Calcular meu % agora';
+
+  // Salva o lead em segundo plano (Supabase + planilha)
+  const whats = document.getElementById('whats').value.trim();
+  enviarLeadParaBackend({
+    nome: nome,
+    whatsapp: whats,
+    objetivo: obj,
+    percentual_gordura: parseFloat(pctNum.toFixed(1)),
+    classificacao: classificacao
+  });
+
+  // Animação do gauge
+  const gaugeNum = document.getElementById('gaugeNum');
+  const arc = document.getElementById('gaugeArc');
+  const circumference = 540;
+  const target = Math.min(pctNum / 45, 1) * circumference;
+  const finalVal = pctNum;
+  let current = 0;
+  let counter = 0;
+
+  const anim = setInterval(() => {
+    current += target / 40;
+    counter += finalVal / 40;
+    if(current >= target){
+      current = target;
+      counter = finalVal;
+      clearInterval(anim);
+    }
+    arc.setAttribute('stroke-dashoffset', circumference - current);
+    gaugeNum.textContent = counter.toFixed(1) + '%';
+  }, 16);
+}
+</script>
+
+</body>
+</html>
