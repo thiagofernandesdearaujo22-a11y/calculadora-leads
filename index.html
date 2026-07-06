@@ -347,8 +347,8 @@
       <div class="tag">Próximo passo</div>
       <h3 id="nextTitle">Foco em Glúteos</h3>
       <p>Agora que você sabe seu ponto de partida, o próximo passo é ter direção certa — não achismo.</p>
-      <!-- TROQUE o href abaixo pelo link real de venda/WhatsApp quando o manual estiver pronto -->
-      <button onclick="window.location.href='https://wa.me/SEUNUMERO'">Quero meu plano de ação →</button>
+      <!-- Link do WhatsApp montado dinamicamente com número real + mensagem pré-preenchida -->
+      <button onclick="irParaWhatsApp()">Quero meu plano de ação →</button>
     </div>
   </div>
 
@@ -394,6 +394,23 @@ async function enviarLeadParaBackend(payload){
   }catch(e){
     console.error('Falha ao enviar lead pro backend:', e);
   }
+}
+
+// Número do WhatsApp comercial (formato: 55 + DDD + número, sem espaços/símbolos)
+const NUMERO_WHATSAPP = "5551986396740";
+
+function irParaWhatsApp(){
+  const nome = document.getElementById('nome').value.trim().split(' ')[0];
+  const obj = document.querySelector('input[name=obj]:checked').value;
+  const classificacao = document.getElementById('classText').textContent;
+
+  const mensagem =
+    `Oi! Sou a ${nome}, acabei de calcular meu percentual de gordura ` +
+    `(resultado: ${classificacao}) e meu foco agora é ${obj.toLowerCase()}. ` +
+    `Quero saber o próximo passo!`;
+
+  const url = `https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensagem)}`;
+  window.location.href = url;
 }
 
 function calcular(){
